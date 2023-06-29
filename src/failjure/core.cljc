@@ -1,6 +1,7 @@
 (ns failjure.core
   #?@(:cljs [(:require [goog.string :refer [format]]
-                       [goog.string.format])]))
+                       [goog.string.format])])
+  #?@(:clj [(:import [clojure.lang ExceptionInfo])]))
 
 ; Public API
 ; failed?, message part of protocol
@@ -14,28 +15,39 @@
 
 (defprotocol HasFailed
   (failed? [self])
+  (data    [self])
   (message [self]))
 
 
 (extend-protocol HasFailed
   nil
   (failed? [self] false)
+  (data    [self] nil)
   (message [self] "nil")
 
   #?@(:clj [Object
             (failed? [self] false)
+            (data    [self] nil)
             (message [self] (str self))
+
+            ExceptionInfo
+            (failed? [self] true)
+            (data    [self] (.getData self))
+            (message [self] (.getMessage self))
 
             Exception
             (failed? [self] true)
+            (data    [self] nil)
             (message [self] (.getMessage self))]
 
       :cljs [default
              (failed? [self] false)
+             (data    [self] nil)
              (message [self] (str self))
 
              js/Error
              (failed? [self] true)
+             (data    [self] nil)
              (message [self] (.-message self))]))
 
 
@@ -43,16 +55,17 @@
 
 
 ; Define a failure
-(defrecord Failure [message]
+(defrecord Failure [data message]
   HasFailed
   (failed? [self] true)
+  (data    [self] (:data self))
   (message [self] (:message self)))
 
 
 (defn fail
-  ([msg] (->Failure msg))
-  ([msg & fmt-parts]
-   (->Failure (apply format msg fmt-parts))))
+  ([data msg] (->Failure data msg))
+  ([data msg & fmt-parts]
+   (->Failure data (apply format msg fmt-parts))))
 
 (defn attempt
   "Accepts an error-handling function and a (possibly failed) value"

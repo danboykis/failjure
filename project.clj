@@ -1,4 +1,4 @@
-(defproject failjure "2.3.0"
+(defproject com.danboykis/failjure "2.3.0"
   :description "Simple helpers for treating failures as values"
   :url         "https://github.com/adambard/failjure"
   :license     {:name "Eclipse Public License"
@@ -14,8 +14,8 @@
   :aot [failjure.core]
 
   :profiles
-  {:provided {:dependencies [[org.clojure/clojure       "1.10.1"]
-                             [org.clojure/clojurescript "1.10.764"]]}}
+  {:provided {:dependencies [[org.clojure/clojure       "1.11.1"]
+                             [org.clojure/clojurescript "1.11.60"]]}}
   :cljsbuild
   {:builds [{:id "test"
              :source-paths ["src" "test"]
